@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 
 USAGE="
-$0 e <plain content>
-$0 d <encrypted content>
+$0 [ e | d ]
 "
 
-if [ -z $2 ]; then
+if [[ -z $1 ]]; then
   echo $USAGE
   exit 0
 fi
 verb=$1
-content=$2
 
 if [[ "$verb" = "d" ]]; then
   dash_d="-d"
@@ -21,14 +19,13 @@ else
   exit 1
 fi
 
-echo "Enter your password, or just press ENTER for base-64 encoding:"
+echo "Enter your password. Leave empty for base-64 encoding:"
 read -s password
 
+echo "Enter content, ending with EOF character (ctrl + d):"
 
-if [ $password ]; then
-  [[ $dash_d ]] && echo "Decrypted content:" || echo "Encrypted content:"
-  echo "$content" | openssl enc -aes-256-cbc -base64 $dash_d -pass pass:$password
+if [[ $password ]]; then
+  openssl enc -aes-256-cbc -base64 $dash_d -pass pass:$password
 else
-  [[ $dash_d ]] && echo "Base64-decoded content:" || echo "Base64-encoded content:"
-  echo "$content" | openssl enc -base64 $dash_d
+  openssl enc -base64 $dash_d
 fi
