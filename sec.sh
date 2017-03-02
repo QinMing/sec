@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 USAGE="
-$0 [ e | d ]
+Usage: $0 [ e | d ]
 "
 
 if [[ -z $1 ]]; then
