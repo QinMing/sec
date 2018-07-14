@@ -44,6 +44,16 @@ fi
 echo "Enter your password. Leave empty for base-64 encoding:"
 read -s password
 
+if [[ "$verb" = "e" ]]; then
+  echo "Confirm password:"
+  read -s password2
+
+  if [[ "$password" != "$password2" ]]; then
+    echo "The two passwords don't match"
+    exit 1
+  fi
+fi
+
 if [[ $input_file ]]; then
   input_file_mixin="-in $input_file"
 else

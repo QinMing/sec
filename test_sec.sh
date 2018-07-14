@@ -18,8 +18,10 @@ function report_success {
 test_case "Test file in file out"
 
 echo "some plain text" > input.txt
-echo the_password | ./sec.sh e -i input.txt -o output.txt || exit 1
-echo the_password | ./sec.sh d -i output.txt -o input_recover.txt || exit 1
+echo the_password$'\n'the_password |
+  ./sec.sh e -i input.txt -o output.txt || exit 1
+echo the_password |
+  ./sec.sh d -i output.txt -o input_recover.txt || exit 1
 
 actual_value=$(cat input_recover.txt)
 if [[ "$actual_value" = 'some plain text' ]] ; then
@@ -37,10 +39,13 @@ rm input_recover.txt || exit 1
 test_case "Test wrong password"
 
 echo "some plain text" > input.txt
-echo the_password | ./sec.sh e -i input.txt -o output.txt || exit 1
+echo the_password$'\n'the_password |
+  ./sec.sh e -i input.txt -o output.txt || exit 1
 failed=false
-echo another_password | ./sec.sh d -i output.txt -o input_recover.txt || failed=true
+echo another_password |
+  ./sec.sh d -i output.txt -o input_recover.txt || failed=true
 if [[ "$failed" = 'true' ]]; then
+  echo "# Expecting to see 'bad decrypt' error above"
   report_success "Pass"
 else
   report_failure "Password is wrong but didn't fail"
@@ -49,3 +54,16 @@ fi
 rm -f input.txt
 rm -f output.txt
 rm -f input_recover.txt
+
+test_case "Two passwords don't match"
+
+failed=false
+echo word1$'\n'word2 |
+  ./sec.sh e -i input.txt -o output.txt || failed=true
+if [[ "$failed" = 'true' ]]; then
+  echo "# Expecting to see \"passwords don't match\" error above"
+  report_success "Pass"
+else
+  report_failure "Passwords don't match but didn't fail"
+  exit 1
+fi
